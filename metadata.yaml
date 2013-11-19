@@ -1,0 +1,14 @@
+name: magento
+summary: Powerful eCommerce solution
+maintainer: Joshua Bixler <joshbixler@sbcglobal.net>
+description: |
+  Powerful eCommerce solution
+categories:
+  - applications
+subordinate: false
+provides:
+  website:
+    interface: http
+requires:
+  database:
+    interface: mysql

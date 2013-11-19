@@ -1,0 +1,60 @@
+#!/bin/bash
+# Here do anything needed to install the service
+# i.e. apt-get install -y foo  or  bzr branch http://myserver/mycode /srv/webroot
+# Make sure this hook exits cleanly and is idempotent, common problems here are
+# failing to account for a debconf question on a dependency, or trying to pull
+# from github without installing git first.
+
+apt-get install apache2 php5 php5-curl php5-gd php5-mcrypt php5-mysql -y
+
+# enable rewrite module
+a2enmod rewrite
+
+juju-log "Setuping the virtual host and folder"
+# make dir for magento to sit in
+
+# move the default virtual host to sites-available
+a2dissite 000-default
+
+cat <<EOF > /etc/apache2/sites-enabled/magento
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/magento
+
+    <Directory /var/www/magento>
+        Options FollowSymLinks
+        AllowOverride All
+        Order allow,deny 
+        allow from all
+    </Directory>
+
+    ErrorLog \${APACHE_LOG_DIR}/magento.log
+    LogLevel warn
+
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
+
+dl="http://www.magentocommerce.com/downloads/assets/1.8.0.0/magento-1.8.0.0.tar.gz"
+
+juju-log "Fetching $dl"
+wget "$dl" -O /tmp/magento.tar.gz
+
+if [ -f /var/www/magento/app/etc/local.xml ]; then
+  cp /var/www/magento/app/etc/local.xml /tmp/
+  rm -rf /var/www/magento
+fi
+
+juju-log "Extracting Magento"
+tar -xvzf /tmp/magento.tar.gz -C /var/www/
+cd /var/www/magento
+chmod -R o+w media var
+chmod o+w app/etc
+
+if [ -f /tmp/local.xml ]; then
+  mv /tmp/local.xml /var/www/magento/app/etc/
+fi
+
+juju-log "Apache2 changed now restarting"
+# Everything changed so restart apache2
+service apache2 restart

@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e 
+
+juju-log "databse relation change start"
+
+db_user=`relation-get user`
+db_db=`relation-get database`
+db_pass=`relation-get password`
+db_host=`relation-get private-address`
+public_url=`unit-get public-address`
+
+if [ -z "$db_db" ]; then
+    juju-log "No database information sent yet. Silently exiting"
+    exit 0
+fi
+
+#this will fail if already setup
+php-cli -f /var/www/magento/install.php -- \
+--license_agreement_accepted "yes" \
+--locale "en_US" \
+--timezone "America/Los_Angeles" \
+--default_currency "USD" \
+--db_host "$db_host" \
+--db_name "$db_name" \
+--db_user "$db_user" \
+--db_pass "$db_pass" \
+--db_prefix "mag" \
+--session_save "db" \
+--admin_frontname "admin" \
+--url "$public_url" \
+--use_rewrites "yes" \
+--use_secure "no" \
+--use_secure_admin "no" \
+--admin_firstname "John" \
+--admin_lastname "Smith" \
+--admin_email "john.smith@localhost" \
+--admin_username "admin" \
+--admin_password "a123b456" \
+--encryption_key "BRuvuCrUd4aSWutr"
+
+juju-log "Magento installation complete"
+
+open-port 80
