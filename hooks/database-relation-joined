@@ -2,7 +2,7 @@
 
 set -e 
 
-juju-log "databse relation change start"
+juju-log "database relation change start"
 
 db_user=`relation-get user`
 db_db=`relation-get database`
@@ -16,7 +16,7 @@ if [ -z "$db_db" ]; then
 fi
 
 #this will fail if already setup
-php-cli -f /var/www/magento/install.php -- \
+php -f /var/www/magento/install.php -- \
 --license_agreement_accepted "yes" \
 --locale "en_US" \
 --timezone "America/Los_Angeles" \
@@ -37,7 +37,8 @@ php-cli -f /var/www/magento/install.php -- \
 --admin_email "john.smith@localhost" \
 --admin_username "admin" \
 --admin_password "a123b456" \
---encryption_key "BRuvuCrUd4aSWutr"
+--encryption_key "BRuvuCrUd4aSWutr" \
+--secure_base_url "$public_url"
 
 juju-log "Magento installation complete"
 
