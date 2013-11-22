@@ -15,14 +15,13 @@ if [ -z "$db_db" ]; then
     exit 0
 fi
 
-#this will fail if already setup
-php -f /var/www/magento/install.php -- \
+/usr/bin/php -f /var/www/magento/install.php -- \
 --license_agreement_accepted "yes" \
 --locale "en_US" \
 --timezone "America/Los_Angeles" \
 --default_currency "USD" \
 --db_host "$db_host" \
---db_name "$db_name" \
+--db_name "$db_db" \
 --db_user "$db_user" \
 --db_pass "$db_pass" \
 --db_prefix "mag" \
@@ -34,7 +33,7 @@ php -f /var/www/magento/install.php -- \
 --use_secure_admin "no" \
 --admin_firstname "John" \
 --admin_lastname "Smith" \
---admin_email "john.smith@localhost" \
+--admin_email "john.smith@localhost.com" \
 --admin_username "admin" \
 --admin_password "a123b456" \
 --encryption_key "BRuvuCrUd4aSWutr" \
